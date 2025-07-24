@@ -2,68 +2,74 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Reservas - Neodat</title>
+  <title>Reserva una sesión</title>
 </head>
 <body>
   <h1>Reserva una sesión</h1>
-  <form id="formulario">
-    <label>Nombre:</label>
-    <input type="text" id="nombre" required><br><br>
-
-    <label>Fecha:</label>
-    <input type="date" id="fecha" required><br><br>
-
-    <label>Hora:</label>
-    <select id="hora">
-      <option value="09:00">09:00</option>
-      <option value="10:00">10:00</option>
-      <option value="11:00">11:00</option>
-    </select><br><br>
-
+  <form id="reservaForm">
+    <label>Nombre: <input type="text" name="nombre" required></label><br><br>
+    <label>Fecha: <input type="date" name="fecha" required></label><br><br>
+    <label>Hora: 
+      <select name="hora" required>
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="14:00">14:00</option>
+      </select>
+    </label><br><br>
     <button type="submit">Reservar</button>
   </form>
 
   <h2>Reservas registradas</h2>
-  <div id="lista-reservas"></div>
+  <ul id="listaReservas"></ul>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxq8aJb7qPK7NvQC4sO5Fj1SIdJNatY7LPtkKEwEsvWSiOriRCMrkOCwBYQg2xGrK3B/exec";
+    const API_URL = 'https://script.google.com/macros/s/AKfycbw2Ohm8yhVk79Tv0T-jcMjuIsnQPdAJhZCEa2l6K-K8FnwoDYejaCQ5jp_Ee8xklE83/exec';
 
-    // Mostrar reservas al cargar
-    window.onload = function () {
-      fetch(API_URL)
-        .then(res => res.json())
-        .then(datos => {
-          const lista = document.createElement("ul");
-          datos.forEach(r => {
-            const li = document.createElement("li");
-            li.textContent = `${r.fecha} ${r.hora} - ${r.nombre}`;
-            lista.appendChild(li);
-          });
-          document.getElementById("lista-reservas").appendChild(lista);
-        })
-        .catch(err => console.error("Error:", err));
-    };
-
-    // Enviar nueva reserva
-    document.getElementById("formulario").addEventListener("submit", function(e) {
+    // Enviar datos a Google Sheets
+    document.getElementById('reservaForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      const data = {
-        nombre: document.getElementById("nombre").value,
-        fecha: document.getElementById("fecha").value,
-        hora: document.getElementById("hora").value
+      const form = e.target;
+      const datos = {
+        nombre: form.nombre.value,
+        fecha: form.fecha.value,
+        hora: form.hora.value
       };
-      fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-      .then(res => res.text())
-      .then(() => location.reload()) // recarga para ver la nueva reserva
-      .catch(err => console.error("Error al enviar reserva:", err));
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(datos),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        form.reset();
+        cargarReservas();
+      } catch (error) {
+        alert("Error al registrar la reserva.");
+      }
     });
+
+    // Obtener y mostrar reservas
+    async function cargarReservas() {
+      try {
+        const response = await fetch(API_URL);
+        const reservas = await response.json();
+        const lista = document.getElementById('listaReservas');
+        lista.innerHTML = '';
+        reservas.forEach(r => {
+          const li = document.createElement('li');
+          li.textContent = `${r.fecha} ${r.hora} - ${r.nombre}`;
+          lista.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Error al cargar las reservas:", error);
+      }
+    }
+
+    // Cargar reservas al abrir la página
+    window.onload = cargarReservas;
   </script>
 </body>
 </html>

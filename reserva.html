@@ -9,7 +9,7 @@
   <form id="reservaForm">
     <label>Nombre: <input type="text" name="nombre" required></label><br><br>
     <label>Fecha: <input type="date" name="fecha" required></label><br><br>
-    <label>Hora: 
+    <label>Hora:
       <select name="hora" required>
         <option value="09:00">09:00</option>
         <option value="10:00">10:00</option>
@@ -24,14 +24,14 @@
   <ul id="listaReservas"></ul>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbw2Ohm8yhVk79Tv0T-jcMjuIsnQPdAJhZCEa2l6K-K8FnwoDYejaCQ5jp_Ee8xklE83/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxKdTDXsQzbDizH98H84hNEZAS-MjlPlhHTkFzR2MV8H3cfab9FP7nDnoM3oqkoy9be/exec';
 
-    // Enviar datos a Google Sheets
+    // Enviar reserva
     document.getElementById('reservaForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       const form = e.target;
       const datos = {
-        nombre: form.nombre.value,
+        nombre: form.nombre.value.trim(),
         fecha: form.fecha.value,
         hora: form.hora.value
       };
@@ -47,15 +47,16 @@
         form.reset();
         cargarReservas();
       } catch (error) {
-        alert("Error al registrar la reserva.");
+        alert("Error al guardar la reserva");
+        console.error(error);
       }
     });
 
-    // Obtener y mostrar reservas
+    // Mostrar reservas
     async function cargarReservas() {
       try {
-        const response = await fetch(API_URL);
-        const reservas = await response.json();
+        const respuesta = await fetch(API_URL);
+        const reservas = await respuesta.json();
         const lista = document.getElementById('listaReservas');
         lista.innerHTML = '';
         reservas.forEach(r => {
@@ -64,11 +65,10 @@
           lista.appendChild(li);
         });
       } catch (error) {
-        console.error("Error al cargar las reservas:", error);
+        console.error("Error al cargar reservas:", error);
       }
     }
 
-    // Cargar reservas al abrir la página
     window.onload = cargarReservas;
   </script>
 </body>

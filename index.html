@@ -4,13 +4,15 @@
   <meta charset="UTF-8">
   <title>Reservas - Neodat</title>
   <style>
-    body { font-family: sans-serif; padding: 2em; }
-    label, input, select { display: block; margin: 0.5em 0; }
+    body { font-family: sans-serif; padding: 2em; max-width: 600px; margin: auto; }
+    label, input, select, button { display: block; margin: 0.5em 0; width: 100%; }
     .reservas { margin-top: 2em; border-top: 1px solid #ccc; padding-top: 1em; }
+    ul { padding-left: 1em; }
   </style>
 </head>
 <body>
   <h1>Reserva una sesión</h1>
+
   <form id="reservaForm">
     <label>Nombre:
       <input type="text" id="nombre" required>
@@ -19,7 +21,8 @@
       <input type="date" id="fecha" required>
     </label>
     <label>Hora:
-      <select id="hora">
+      <select id="hora" required>
+        <option value="">Seleccione una hora</option>
         <option>09:00</option>
         <option>10:00</option>
         <option>11:00</option>
@@ -31,33 +34,57 @@
   </form>
 
   <div class="reservas">
-    <h2>Reservas registradas (simulado)</h2>
-    <ul id="listaReservas"></ul>
+    <h2>Reservas registradas</h2>
+    <ul id="listaReservas"><li>Cargando...</li></ul>
   </div>
 
   <script>
     const formulario = document.getElementById('reservaForm');
     const lista = document.getElementById('listaReservas');
-    const reservas = JSON.parse(localStorage.getItem('reservas') || "[]");
 
-    function mostrarReservas() {
-      lista.innerHTML = reservas.map(r => `<li>${r.fecha} ${r.hora} - ${r.nombre}</li>`).join('');
-    }
+    const URL_SCRIPT = 'https://script.google.com/macros/s/XXXXXXXXXXXXX/exec'; // <--- REEMPLAZAR AQUÍ
 
     formulario.addEventListener('submit', function(e) {
       e.preventDefault();
-      const nueva = {
+
+      const datos = {
         nombre: document.getElementById('nombre').value,
         fecha: document.getElementById('fecha').value,
         hora: document.getElementById('hora').value
       };
-      reservas.push(nueva);
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-      mostrarReservas();
-      formulario.reset();
+
+      fetch(URL_SCRIPT, {
+        method: 'POST',
+        body: JSON.stringify(datos),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(() => {
+        alert("✅ Reserva guardada con éxito");
+        formulario.reset();
+        cargarReservas();
+      })
+      .catch(() => alert("❌ Error al enviar la reserva"));
     });
 
-    mostrarReservas();
+    function cargarReservas() {
+      fetch(URL_SCRIPT)
+        .then(res => res.json())
+        .then(data => {
+          if (data.length === 0) {
+            lista.innerHTML = '<li>No hay reservas registradas aún.</li>';
+            return;
+          }
+          lista.innerHTML = data.map(r =>
+            `<li><strong>${r.fecha}</strong> ${r.hora} – ${r.nombre}</li>`
+          ).join('');
+        })
+        .catch(err => {
+          lista.innerHTML = "<li>⚠ No se pudo cargar la lista de reservas.</li>";
+          console.error(err);
+        });
+    }
+
+    cargarReservas();
   </script>
 </body>
 </html>

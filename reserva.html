@@ -1,63 +1,72 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Reservas - Neodat</title>
-  <style>
-    body { font-family: sans-serif; padding: 2em; }
-    label, input, select { display: block; margin: 0.5em 0; }
-    .reservas { margin-top: 2em; border-top: 1px solid #ccc; padding-top: 1em; }
-  </style>
 </head>
 <body>
   <h1>Reserva una sesión</h1>
-  <form id="reservaForm">
-    <label>Nombre:
-      <input type="text" id="nombre" required>
-    </label>
-    <label>Fecha:
-      <input type="date" id="fecha" required>
-    </label>
-    <label>Hora:
-      <select id="hora">
-        <option>09:00</option>
-        <option>10:00</option>
-        <option>11:00</option>
-        <option>15:00</option>
-        <option>16:00</option>
-      </select>
-    </label>
+
+  <form id="formulario">
+    <label>Nombre:</label>
+    <input type="text" id="nombre" required><br><br>
+
+    <label>Fecha:</label>
+    <input type="date" id="fecha" required><br><br>
+
+    <label>Hora:</label>
+    <select id="hora" required>
+      <option>09:00</option>
+      <option>10:00</option>
+      <option>11:00</option>
+      <option>12:00</option>
+      <option>14:00</option>
+      <option>15:00</option>
+    </select><br><br>
+
     <button type="submit">Reservar</button>
   </form>
 
-  <div class="reservas">
-    <h2>Reservas registradas</h2>
-    <ul id="listaReservas"></ul>
-  </div>
+  <h2>Reservas registradas</h2>
+  <ul id="lista-reservas"></ul>
 
   <script>
-    const formulario = document.getElementById('reservaForm');
-    const lista = document.getElementById('listaReservas');
-    const reservas = JSON.parse(localStorage.getItem('reservas') || "[]");
+    const API_URL = "https://script.google.com/macros/s/AKfycbxq8aJb7qPK7NvQC4sO5Fj1SIdJNatY7LPtkKEwEsvWSiOriRCMrkOCwBYQg2xGrK3B/exec";
 
-    function mostrarReservas() {
-      lista.innerHTML = reservas.map(r => `<li>${r.fecha} ${r.hora} - ${r.nombre}</li>`).join('');
-    }
-
-    formulario.addEventListener('submit', function(e) {
+    document.getElementById("formulario").addEventListener("submit", function(e) {
       e.preventDefault();
-      const nueva = {
-        nombre: document.getElementById('nombre').value,
-        fecha: document.getElementById('fecha').value,
-        hora: document.getElementById('hora').value
-      };
-      reservas.push(nueva);
-      localStorage.setItem('reservas', JSON.stringify(reservas));
-      mostrarReservas();
-      formulario.reset();
+      const nombre = document.getElementById("nombre").value;
+      const fecha = document.getElementById("fecha").value;
+      const hora = document.getElementById("hora").value;
+
+      fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ nombre, fecha, hora }),
+        headers: { "Content-Type": "application/json" },
+      })
+      .then(r => r.text())
+      .then(() => {
+        alert("Reserva realizada.");
+        document.getElementById("formulario").reset();
+        cargarReservas(); // actualizar la lista
+      });
     });
 
-    mostrarReservas();
+    function cargarReservas() {
+      fetch(API_URL)
+        .then(r => r.json())
+        .then(data => {
+          const lista = document.getElementById("lista-reservas");
+          lista.innerHTML = "";
+          data.forEach(r => {
+            const item = document.createElement("li");
+            item.textContent = `${r.fecha} ${r.hora} - ${r.nombre}`;
+            lista.appendChild(item);
+          });
+        });
+    }
+
+    cargarReservas(); // cargar al abrir
   </script>
 </body>
 </html>

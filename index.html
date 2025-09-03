@@ -3,119 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planificador Académico — Excel → Horarios (HTML/JS)</title>
+  <title>Planificador Académico — Versión con Fallback (HTML/JS)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#0b1320;
-      --card:#101a2d;
-      --muted:#8aa0c3;
-      --text:#e7eefc;
-      --accent:#3b82f6;
-      --accent-2:#22c55e;
-      --warn:#f59e0b;
-      --error:#ef4444;
-      --ok:#10b981;
-      --chip:#1b2946;
-      --border:#263145;
+      --bg:#0b1320; --card:#101a2d; --muted:#8aa0c3; --text:#e7eefc; --accent:#3b82f6;
+      --accent-2:#22c55e; --warn:#f59e0b; --error:#ef4444; --ok:#10b981;
+      --chip:#1b2946; --border:#263145;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      background:linear-gradient(180deg,#0b1320,#0b1320 120px,#0f1a30);
-      color:var(--text);
-    }
-    header{
-      position:sticky;top:0;z-index:50;
-      background:rgba(11,19,32,.9);
-      backdrop-filter:saturate(140%) blur(6px);
-      border-bottom:1px solid var(--border);
-    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#0b1320;color:var(--text)}
+    header{position:sticky;top:0;z-index:50;background:rgba(11,19,32,.9);backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid var(--border)}
     .wrap{max-width:1200px;margin:0 auto;padding:16px 20px}
-    h1{margin:0;font-size:22px;letter-spacing:.2px}
-    small.muted{color:var(--muted)}
-    .grid{
-      display:grid;gap:16px;
-      grid-template-columns: 320px 1fr;
-      align-items:start;
-    }
-    @media (max-width: 980px){ .grid{ grid-template-columns: 1fr; } }
+    h1{margin:0;font-size:22px} small.muted{color:var(--muted)}
+    .grid{display:grid;gap:16px;grid-template-columns:320px 1fr;align-items:start}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
     .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px}
-    .card h2{margin:4px 0 10px 0;font-size:16px}
-    .card h3{margin:8px 0 8px 0;font-size:15px}
     .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .btn{
-      appearance:none;border:1px solid var(--border);background:#15223a;color:var(--text);
-      border-radius:10px;padding:8px 12px;font-weight:600;cursor:pointer;
-      transition:.15s transform, .15s background;
-    }
-    .btn:hover{background:#1a2a4a}
+    .btn{appearance:none;border:1px solid var(--border);background:#15223a;color:var(--text);border-radius:10px;padding:8px 12px;font-weight:600;cursor:pointer}
     .btn.primary{background:var(--accent);border-color:transparent;color:white}
     .btn.success{background:var(--accent-2);border-color:transparent;color:#062412}
-    .btn.warn{background:var(--warn);border-color:transparent;color:#291b04}
-    .btn.error{background:var(--error);border-color:transparent}
-    .btn.ghost{background:transparent}
     .pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:6px 10px;font-size:12px;color:var(--muted)}
-    label{font-size:13px;color:var(--muted)}
-    input[type="file"]{width:100%}
-    select, input[type="text"], input[type="number"], textarea{
-      width:100%;background:#0f1a30;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px;
-    }
-    .sep{height:1px;background:var(--border);margin:10px 0}
-    .kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .badge{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:#0c1730;color:var(--muted)}
-    table{width:100%;border-collapse:separate;border-spacing:0;overflow:auto}
-    th,td{border-bottom:1px solid var(--border);padding:8px 6px;text-align:left;font-size:12.5px}
-    th{position:sticky;top:0;background:#0f1a30;z-index:1}
-    .help{font-size:12.5px;color:var(--muted)}
-    .tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-    .tabs button{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#0f1a30;color:var(--text);cursor:pointer}
-    .tabs button.active{background:var(--accent);color:#fff;border-color:transparent}
-    .status{display:flex;gap:10px;flex-wrap:wrap}
+    label{font-size:13px;color:var(--muted)} input[type="file"]{width:100%}
+    select,input[type="text"]{width:100%;background:#0f1a30;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px 10px}
+    .status{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
     .status .item{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--border);border-radius:10px;background:#0f1a30}
     .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
     .dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.err{background:var(--error)}
-    .cell{border:1px solid var(--border);border-radius:8px;padding:6px;background:#0e1a2f}
-    .cell.red{outline:2px solid var(--error)}
-    .cell.yellow{outline:2px solid var(--warn)}
+    .tabs{display:flex;gap:6px;margin-bottom:8px} .tabs button{padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#0f1a30;color:var(--text);cursor:pointer}
+    .tabs button.active{background:var(--accent);color:#fff;border-color:transparent}
+    .vis{display:none} .vis.active{display:block}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    th,td{border-bottom:1px solid var(--border);padding:8px 6px;text-align:left;font-size:12.5px}
     .grid-week{display:grid;grid-template-columns:110px repeat(5,1fr);gap:10px}
-    .grid-week .col{display:flex;flex-direction:column;gap:10px}
-    .sticky-note{font-size:12px;color:var(--muted);background:#0f1a30;border:1px dashed var(--border);border-radius:8px;padding:8px}
-    .flex{display:flex;gap:12px;flex-wrap:wrap}
+    .col{display:flex;flex-direction:column;gap:10px}
+    .cell{border:1px solid var(--border);border-radius:8px;padding:6px;background:#0e1a2f}
+    .help{font-size:12.5px;color:var(--muted)}
     .sr-only{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-    .table-wrap{max-height:460px;overflow:auto}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px}
-    .modal .box{max-width:900px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
-    .danger{color:var(--error)}
-    .note{font-size:12px;color:var(--muted);margin-top:4px}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-    .vis{display:none}
-    .vis.active{display:block}
-    .shadow{box-shadow:0 10px 25px rgba(0,0,0,.35)}
-    .textarea-sm{min-height:66px}
-    .code{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-size:12px}
   </style>
-  <!-- SheetJS (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- SheetJS (CDN). Si su red bloquea CDNs, el sistema activará un "fallback" sin XLSX (acepta CSV y dataset de ejemplo). -->
+  <script id="sheetjs-cdn" src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <header>
     <div class="wrap">
       <div class="row" style="justify-content:space-between;align-items:center">
         <div>
-          <h1>Planificador Académico</h1>
-          <small class="muted">Carga hojas de Excel → mapea columnas → planifica con restricciones (docentes, estudiantes, inglés, prácticas) → edita por estudiante → exporta CSV.</small>
+          <h1>Planificador Académico (con Fallback)</h1>
+          <small class="muted">Si el cargador de Excel no inicializa, cargue CSV o use el dataset de ejemplo.</small>
         </div>
         <div class="row">
           <button id="btnSave" class="btn">Guardar</button>
           <button id="btnLoad" class="btn">Recuperar</button>
-          <button id="btnExportCareer" class="btn">Exportar CSV (carreras/ciclos)</button>
-          <button id="btnExportStudent" class="btn">Exportar CSV (estudiantes)</button>
+          <button id="btnExportCareer" class="btn">CSV Carreras/Ciclos</button>
+          <button id="btnExportStudent" class="btn">CSV Estudiantes</button>
         </div>
       </div>
     </div>
@@ -123,1241 +66,422 @@
 
   <main class="wrap">
     <div class="grid">
-      <!-- Lateral: Carga & Config -->
-      <section class="card shadow" aria-labelledby="secCarga">
-        <h2 id="secCarga">1) Carga de archivos Excel</h2>
-        <p class="help">Puede cargar múltiples archivos a la vez. El sistema intentará identificar cada tipo (malla, oferta, estudiantes, inglés, prácticas). Si hay ambigüedad, se abrirá un asistente de mapeo para vincular columnas.</p>
+      <section class="card" aria-labelledby="secCarga">
+        <h2 id="secCarga">1) Carga de archivos</h2>
         <div class="row">
-          <input id="fileInput" type="file" accept=".xlsx,.xls" multiple />
+          <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" multiple />
         </div>
-        <div id="loadStatus" class="status" style="margin-top:10px"></div>
-        <div class="sep"></div>
-        <h2>2) Configuración</h2>
-        <div class="kpi">
-          <div>
-            <label for="selCarreras">Carrera(s) a planificar</label>
-            <select id="selCarreras" multiple size="5" aria-label="Seleccione carreras"></select>
-            <div class="note">Use Ctrl/⌘ para selección múltiple.</div>
-          </div>
-          <div>
-            <label for="selCiclos">Ciclo(s)</label>
-            <select id="selCiclos" multiple size="5" aria-label="Seleccione ciclos"></select>
-            <div class="note">Ej.: 1, 2, 3, 4...</div>
-          </div>
+        <div id="envStatus" class="status"></div>
+        <div id="loadStatus" class="status"></div>
+        <div class="row" style="margin-top:8px">
+          <span class="pill"><span class="dot ok"></span> Requiere XLSX para Excel</span>
+          <span class="pill"><span class="dot warn"></span> Fallback CSV activo si XLSX no carga</span>
         </div>
-
-        <div class="sep"></div>
-        <h3>Prioridades de ciclo</h3>
-        <div class="row">
-          <input id="inputCiclosPrioritarios" type="text" placeholder="Ej.: 2,3 (se asignan antes)" />
-        </div>
-
-        <div class="sep"></div>
-        <h3>Restricciones opcionales</h3>
-        <div class="row">
-          <label><input type="checkbox" id="chkUsarIngles" /> Activar restricciones de Inglés</label>
-          <label><input type="checkbox" id="chkUsarPracticas" /> Activar prácticas comunitarias</label>
-        </div>
-        <div class="row">
-          <button id="btnEditarPracticas" class="btn">Editar franjas de prácticas</button>
-          <button id="btnCargarIngles" class="btn">Cargar/editar franjas de Inglés</button>
-        </div>
-        <div class="sep"></div>
-        <div class="row">
+        <div class="row" style="margin-top:8px">
           <button id="btnPlanificar" class="btn primary">Planificar</button>
-          <span class="pill"><span class="dot ok"></span> Días: Lun–Vie</span>
-          <span class="pill"><span class="dot ok"></span> Franjas: 7‑10, 10‑13, 13‑16, 16‑19, 19‑22</span>
-          <span class="pill"><span class="dot ok"></span> Máx. por día: 2</span>
-          <span class="pill"><span class="dot ok"></span> Máx. por estudiante: 6</span>
         </div>
       </section>
-
-      <!-- Principal: Resultados & Edición -->
-      <section class="card shadow" aria-labelledby="secResultados">
-        <h2 id="secResultados">Resultados</h2>
-        <div id="alerts" class="sr-only" aria-live="assertive"></div>
-
-        <div class="tabs" role="tablist" aria-label="Vistas de horario">
-          <button class="active" role="tab" aria-selected="true" aria-controls="viewCareer" id="tabCareer">Por carrera / ciclo</button>
-          <button role="tab" aria-selected="false" aria-controls="viewStudent" id="tabStudent">Por estudiante (edición)</button>
-          <button role="tab" aria-selected="false" aria-controls="viewConflicts" id="tabConflicts">Conflictos</button>
-          <button role="tab" aria-selected="false" aria-controls="viewInstrucciones" id="tabHelp">Instrucciones</button>
+      <section class="card">
+        <div class="tabs" role="tablist">
+          <button class="active" id="tabCareer">Carrera/Ciclo</button>
+          <button id="tabStudent">Estudiante</button>
+          <button id="tabConflicts">Conflictos</button>
+          <button id="tabHelp">Ayuda</button>
         </div>
-
-        <section id="viewCareer" class="vis active" role="tabpanel" aria-labelledby="tabCareer">
-          <div id="careerContainer"></div>
-        </section>
-
-        <section id="viewStudent" class="vis" role="tabpanel" aria-labelledby="tabStudent">
+        <section id="viewCareer" class="vis active"></section>
+        <section id="viewStudent" class="vis">
           <div class="row">
-            <div style="min-width:260px;flex:1">
-              <label for="selEstudiante">Estudiante</label>
-              <select id="selEstudiante" size="8"></select>
-            </div>
-            <div style="flex:2">
-              <div class="toolbar">
-                <button id="btnMoverAsignatura" class="btn">Mover a otra franja/paralelo</button>
-                <button id="btnReemplazarAsignatura" class="btn">Reemplazar paralelo</button>
-                <span class="badge">Reglas: máx. 2 materias/día; máx. 6 en total; sin choques con Inglés/Prácticas.</span>
-              </div>
-              <div id="studentSchedule"></div>
+            <select id="selEstudiante" size="8" style="min-width:260px"></select>
+            <div>
+              <button id="btnMoverAsignatura" class="btn">Mover</button>
+              <button id="btnReemplazarAsignatura" class="btn">Reemplazar paralelo</button>
+              <div id="studentSchedule" style="margin-top:10px"></div>
             </div>
           </div>
         </section>
-
-        <section id="viewConflicts" class="vis" role="tabpanel" aria-labelledby="tabConflicts">
-          <div class="filter-row">
-            <input id="filtroEst" placeholder="Filtrar por estudiante" />
-            <input id="filtroDoc" placeholder="Filtrar por docente" />
-            <input id="filtroCar" placeholder="Filtrar por carrera/ciclo" />
-            <select id="filtroDia">
-              <option value="">Día</option>
-              <option>Lun</option><option>Mar</option><option>Mié</option><option>Jue</option><option>Vie</option>
-            </select>
-            <select id="filtroFranja">
-              <option value="">Franja</option>
-              <option>7-10</option><option>10-13</option><option>13-16</option><option>16-19</option><option>19-22</option>
-            </select>
-          </div>
-          <div class="table-wrap">
-            <table id="tablaConflictos">
-              <thead><tr><th>Tipo</th><th>Descripción</th><th>Estudiante</th><th>Docente</th><th>Carrera/Ciclo</th><th>Día</th><th>Franja</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
+        <section id="viewConflicts" class="vis">
+          <table><thead><tr><th>Tipo</th><th>Descripción</th></tr></thead><tbody id="confBody"></tbody></table>
         </section>
-
-        <section id="viewInstrucciones" class="vis" role="tabpanel" aria-labelledby="tabHelp">
-          <div class="sticky-note">
-            <h3>Guía rápida</h3>
-            <ol>
-              <li>Cargue sus archivos Excel (malla, oferta de asignaturas/paralelos, estudiantes; opcional: inglés y prácticas). Si los encabezados difieren, el asistente le permitirá mapear columnas a los nombres canónicos.</li>
-              <li>Seleccione la(s) carrera(s) y ciclo(s) a planificar. Opcionalmente priorice ciertos ciclos (ej.: “2,3”). Active Inglés o Prácticas si corresponde.</li>
-              <li>Pulse <em>Planificar</em>. El algoritmo asigna franjas (Lun–Vie × 5 franjas) con backtracking y heurísticas (docente/capacidad primero; estudiantes con más restricciones primero), respetando: máx. 2 materias/día por docente y por estudiante; máx. 6 asignaturas por estudiante; no choques entre ciclos adyacentes (misma carrera); sin choques con inglés/prácticas.</li>
-              <li>Vea el horario por carrera/ciclo y por estudiante. En la pestaña “Por estudiante” puede mover o reemplazar asignaturas; si la acción viola alguna regla, se mostrará un mensaje y no se aplicará.</li>
-              <li>Revise “Conflictos” para ver casos irreconciliables o advertencias (en rojo/amarillo). Puede filtrar por estudiante, docente, carrera/ciclo, día y franja.</li>
-              <li>Use “Guardar/Recuperar” para persistir en <code>localStorage</code>. Exporte CSV por vista cuando requiera.</li>
-            </ol>
-          </div>
+        <section id="viewHelp" class="vis">
+          <p class="help">
+            Si el estado indica <b>“XLSX no cargado”</b>, su navegador/red bloquea el CDN.
+            En ese caso: 1) conéctese a internet sin bloqueo; o 2) cargue archivos <b>CSV</b> con los mismos encabezados;
+            o 3) use el dataset de ejemplo (se precarga).
+          </p>
         </section>
+        <div id="alerts" class="sr-only" aria-live="assertive"></div>
       </section>
     </div>
   </main>
-
-  <!-- Modal: Mapeo de columnas -->
-  <div id="modalMapeo" class="modal" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
-    <div class="box">
-      <h3 id="mapTitle">Asistente de mapeo de columnas</h3>
-      <p class="help">Vincule las columnas detectadas del archivo con los nombres requeridos. Los campos mínimos deben quedar asignados.</p>
-      <div id="mapeoContenido"></div>
-      <div class="row" style="justify-content:flex-end;margin-top:10px">
-        <button id="btnCancelarMapeo" class="btn">Cancelar</button>
-        <button id="btnAplicarMapeo" class="btn primary">Aplicar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Editar prácticas -->
-  <div id="modalPracticas" class="modal" role="dialog" aria-modal="true" aria-labelledby="pracTitle">
-    <div class="box">
-      <h3 id="pracTitle">Editar franjas de prácticas por carrera/ciclo</h3>
-      <div id="pracContenido"></div>
-      <div class="row" style="justify-content:flex-end;margin-top:10px">
-        <button id="btnCerrarPracticas" class="btn">Cerrar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Cargar/editar Inglés -->
-  <div id="modalIngles" class="modal" role="dialog" aria-modal="true" aria-labelledby="ingTitle">
-    <div class="box">
-      <h3 id="ingTitle">Cargar/editar restricciones de Inglés</h3>
-      <p class="help">Puede cargar un Excel adicional (id_estudiante, franja_bloqueada o ventanas_ingles) o editar manualmente.</p>
-      <div class="row">
-        <input id="fileIngles" type="file" accept=".xlsx,.xls" />
-        <button id="btnParseIngles" class="btn">Agregar</button>
-      </div>
-      <div id="inglesContenido" class="table-wrap" style="margin-top:10px"></div>
-      <div class="row" style="justify-content:flex-end;margin-top:10px">
-        <button id="btnCerrarIngles" class="btn">Cerrar</button>
-      </div>
-    </div>
-  </div>
 
   <script>
   (function(){
     "use strict";
 
-    /*** =========================
-     *  Utilidades y constantes
-     *  ========================= */
-    const DIAS = ["Lun","Mar","Mié","Jue","Vie"];
-    const FRANJAS = ["7-10","10-13","13-16","16-19","19-22"];
-    const MAX_POR_DIA = 2;
-    const MAX_POR_ESTUDIANTE = 6;
+    // ===== Diagnóstico de entorno
+    const env = document.getElementById("envStatus");
+    function pill(ok, text){
+      const c = ok ? "ok" : "err";
+      return `<div class="item"><span class="dot ${c}"></span><span>${text}</span></div>`;
+    }
+    function cspNormalize(s){return (s||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");}
 
-    // Mínimos requeridos por dataset
-    const REQ = {
-      malla: ["carrera","ciclo","codigo_asignatura","nombre_asignatura","compartida_entre_carreras"],
-      oferta: ["codigo_asignatura","paralelo","docente","capacidad_maxima","carrera"],
-      estudiantes: ["id_estudiante","nombre_estudiante","carrera","ciclo_actual","nivel_ingles","en_practicas"],
-      ingles: ["id_estudiante","franja_bloqueada","ventanas_ingles"],
-      practicas: ["carrera","ciclo","franja_bloqueada"]
-    };
-
-    // Sinónimos para mapeo inteligente
-    const SYN = {
-      id_estudiante: ["id","student_id","id alumno","id_est","cedula","dni"],
-      nombre_estudiante: ["nombre","estudiante","full_name","alumno"],
-      carrera: ["carrera","programa","school","major"],
-      ciclo: ["ciclo","nivel","semestre","periodo","año","anio"],
-      ciclo_actual: ["ciclo_actual","nivel_actual","semestre_actual"],
-      codigo_asignatura:["codigo","cod_asig","sigla","cod_asignatura","codMateria"],
-      nombre_asignatura:["asignatura","materia","nombre","curso"],
-      paralelo:["paralelo","seccion","grupo","par"],
-      docente:["docente","profesor","prof","teacher","instructor"],
-      capacidad_maxima:["capacidad","cupo","cap_max","capacidad_max"],
-      compartida_entre_carreras:["compartida","compartida_entre_carreras","shared"],
-      nivel_ingles:["nivel_ingles","english_level","ingles"],
-      en_practicas:["en_practicas","practicas","en prácticas","prácticas"],
-      franja_bloqueada:["franja_bloqueada","bloque","bloqueo","horario_bloqueado"],
-      ventanas_ingles:["ventanas_ingles","ventanas","disponibilidad_ingles"]
-    };
-
-    function norm(s){ return (s||"").toString().trim().toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
-      .replace(/[\s\-\/]+/g,"_"); }
-
-    function guessMapping(headers, reqList){
-      // Por cada requerido, intente emparejar con header directo o sinónimo
-      const mapping = {};
-      const nHeaders = headers.map(h => norm(h));
-      for(const req of reqList){
-        // búsqueda exacta
-        const idxExact = nHeaders.indexOf(req);
-        if(idxExact>=0){ mapping[req] = headers[idxExact]; continue; }
-        // sinónimos
-        const syns = SYN[req]||[];
-        let found = -1;
-        for(const s of syns){
-          const i = nHeaders.indexOf(norm(s));
-          if(i>=0){ found = i; break; }
-        }
-        if(found>=0){ mapping[req] = headers[found]; }
+    setTimeout(()=>{
+      const hasXLSX = !!window.XLSX;
+      env.innerHTML =
+        pill(hasXLSX, hasXLSX ? "XLSX cargado (Excel habilitado)" : "XLSX no cargado (CDN bloqueado o sin internet)") +
+        pill(true, "Fallback CSV listo");
+      if(!hasXLSX){
+        console.warn("SheetJS no disponible. Se permite carga de CSV y dataset de ejemplo.");
       }
-      return mapping;
-    }
+    }, 400);
 
-    function needsMapping(headers, reqList){
-      const nheaders = headers.map(h=>norm(h));
-      return reqList.some(r => !nheaders.includes(r) && !(SYN[r]||[]).some(s=>nheaders.includes(norm(s))));
-    }
-
-    function unique(arr){ return [...new Set(arr)]; }
-    function byKey(key){ return (a,b)=> (a[key] ?? "").localeCompare(b[key] ?? ""); }
-    function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
-
-    function toCSV(rows){
-      if(!rows || !rows.length) return "";
-      const cols = unique(rows.flatMap(r=>Object.keys(r)));
-      const esc = v => {
-        const s = (v===undefined||v===null) ? "" : String(v);
-        return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
-      };
-      const lines = [cols.join(",")];
-      for(const r of rows){
-        lines.push(cols.map(c=>esc(r[c])).join(","));
-      }
-      return lines.join("\n");
-    }
-
-    function download(filename, text){
-      const blob = new Blob([text], {type:"text/csv;charset=utf-8"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url; a.download = filename; a.click();
-      setTimeout(()=>URL.revokeObjectURL(url), 1000);
-    }
-
-    function alertLive(msg){
-      const el = document.getElementById("alerts");
-      el.textContent = msg;
-    }
-
-    // Dataset de ejemplo (mínimo) embebido
+    // ===== Estado mínimo + dataset de ejemplo
+    const state = {
+      datasets: { malla:[], oferta:[], estudiantes:[], ingles:[], practicas:[] },
+      placements: [], studentAssign: [], conflictos: []
+    };
     const SAMPLE = {
       malla:[
         {carrera:"Administracion", ciclo:"1", codigo_asignatura:"ADM101", nombre_asignatura:"Fundamentos de Administración", compartida_entre_carreras:"no"},
         {carrera:"Administracion", ciclo:"1", codigo_asignatura:"MAT101", nombre_asignatura:"Matemática I", compartida_entre_carreras:"si"},
         {carrera:"Negocios", ciclo:"1", codigo_asignatura:"NEG101", nombre_asignatura:"Introducción a los Negocios", compartida_entre_carreras:"no"},
-        {carrera:"Negocios", ciclo:"1", codigo_asignatura:"MAT101", nombre_asignatura:"Matemática I", compartida_entre_carreras:"si"},
-        {carrera:"Administracion", ciclo:"2", codigo_asignatura:"ADM201", nombre_asignatura:"Procesos Organizacionales", compartida_entre_carreras:"no"},
-        {carrera:"Administracion", ciclo:"2", codigo_asignatura:"EST201", nombre_asignatura:"Estadística I", compartida_entre_carreras:"si"}
+        {carrera:"Negocios", ciclo:"1", codigo_asignatura:"MAT101", nombre_asignatura:"Matemática I", compartida_entre_carreras:"si"}
       ],
       oferta:[
         {codigo_asignatura:"ADM101", paralelo:"A", docente:"Dr. Pérez", capacidad_maxima:40, carrera:"Administracion"},
         {codigo_asignatura:"MAT101", paralelo:"A", docente:"Ing. Ruiz", capacidad_maxima:50, carrera:"Administracion"},
         {codigo_asignatura:"NEG101", paralelo:"A", docente:"MSc. León", capacidad_maxima:30, carrera:"Negocios"},
-        {codigo_asignatura:"MAT101", paralelo:"B", docente:"Ing. Ruiz", capacidad_maxima:45, carrera:"Negocios"},
-        {codigo_asignatura:"ADM201", paralelo:"A", docente:"Dra. Mora", capacidad_maxima:35, carrera:"Administracion"},
-        {codigo_asignatura:"EST201", paralelo:"A", docente:"MSc. Soto", capacidad_maxima:40, carrera:"Administracion"}
+        {codigo_asignatura:"MAT101", paralelo:"B", docente:"Ing. Ruiz", capacidad_maxima:45, carrera:"Negocios"}
       ],
       estudiantes:[
         {id_estudiante:"E01", nombre_estudiante:"Ana Gómez", carrera:"Administracion", ciclo_actual:"1", nivel_ingles:"B1", en_practicas:"no"},
         {id_estudiante:"E02", nombre_estudiante:"Luis Paredes", carrera:"Administracion", ciclo_actual:"1", nivel_ingles:"A2", en_practicas:"no"},
-        {id_estudiante:"E03", nombre_estudiante:"Carla Ríos", carrera:"Negocios", ciclo_actual:"1", nivel_ingles:"B2", en_practicas:"no"},
-        {id_estudiante:"E04", nombre_estudiante:"Diego Vaca", carrera:"Administracion", ciclo_actual:"2", nivel_ingles:"A2", en_practicas:"si"}
-      ],
-      ingles:[
-        {id_estudiante:"E03", franja_bloqueada:"Mar 10-13"},
-        {id_estudiante:"E01", franja_bloqueada:"Jue 16-19"}
-      ],
-      practicas:[
-        {carrera:"Administracion", ciclo:"2", franja_bloqueada:"Mié 13-16"}
+        {id_estudiante:"E03", nombre_estudiante:"Carla Ríos", carrera:"Negocios", ciclo_actual:"1", nivel_ingles:"B2", en_practicas:"no"}
       ]
     };
+    state.datasets = JSON.parse(JSON.stringify(SAMPLE));
 
-    /*** =========================
-     *  Estado global de la app
-     *  ========================= */
-    const state = {
-      rawFiles: [],
-      datasets: { malla:[], oferta:[], estudiantes:[], ingles:[], practicas:[] },
-      mappingsPending: null,
-      carreras: [],
-      ciclos: [],
-      ciclosPrioritarios: [],
-      usarIngles: false,
-      usarPracticas: false,
-      // resultados
-      placements: [], // ubicaciones de paralelos: {carrera,ciclo,codigo,paralelo,docente,dia,franja}
-      studentAssign: [], // asignaciones: {id_estudiante,codigo,paralelo,dia,franja,docente,carrera,ciclo}
-      conflictos: []    // lista de conflictos/advertencias
-    };
+    // ===== Utilidades breves (mismas reglas y franjas)
+    const DIAS = ["Lun","Mar","Mié","Jue","Vie"];
+    const FRANJAS = ["7-10","10-13","13-16","16-19","19-22"];
+    const MAX_POR_DIA = 2;
+    const MAX_POR_ESTUDIANTE = 6;
+    const loadStatus = document.getElementById("loadStatus");
+    const alerts = document.getElementById("alerts");
 
-    /*** =========================
-     *  Carga de Excel
-     *  ========================= */
-    const $file = document.getElementById("fileInput");
-    const $status = document.getElementById("loadStatus");
+    function alertLive(msg){ alerts.textContent = msg; }
+    function addStatus(label, ok=true){ loadStatus.insertAdjacentHTML("beforeend", `<div class="item"><span class="dot ${ok?"ok":"err"}"></span>${label}</div>`); }
+    function unique(arr){ return [...new Set(arr)]; }
+    function escapeHtml(s){ return String(s||"").replace(/[&<>\"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
 
-    function addStatus(label, ok=true, detail=""){
-      const div = document.createElement("div");
-      div.className = "item";
-      div.innerHTML = `<span class="dot ${ok?"ok":"err"}"></span><span>${label}</span>${detail?`<span class="badge">${detail}</span>`:""}`;
-      $status.appendChild(div);
-    }
-
-    $file.addEventListener("change", async (e)=>{
-      $status.innerHTML = "";
+    // ===== Carga de archivos con fallback CSV
+    const fileInput = document.getElementById("fileInput");
+    fileInput.addEventListener("change", async (e)=>{
+      loadStatus.innerHTML = "";
       const files = Array.from(e.target.files||[]);
-      if(!files.length){
-        addStatus("Sin archivos seleccionados", false);
-        return;
-      }
-      state.rawFiles = files;
+      if(!files.length){ addStatus("Sin archivos", false); return; }
       for(const f of files){
-        await parseWorkbook(f);
+        const name = f.name.toLowerCase();
+        try{
+          if((window.XLSX) && (name.endsWith(".xlsx") || name.endsWith(".xls"))){
+            const data = await f.arrayBuffer();
+            const wb = XLSX.read(data, {type:"array"});
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(ws,{defval:""});
+            routeDatasetGuess(f.name, json);
+          }else if(name.endsWith(".csv")){
+            const text = await f.text();
+            const json = csvToJson(text);
+            routeDatasetGuess(f.name, json);
+          }else{
+            addStatus(`${f.name}: formato no soportado sin XLSX`, false);
+          }
+        }catch(err){
+          console.error(err); addStatus(`${f.name}: error al procesar`, false);
+        }
       }
-      postLoadRefresh();
+      addStatus("Archivos procesados");
     });
 
-    async function parseWorkbook(file){
+    function csvToJson(text){
+      // Parser CSV sencillo (coma; admite comillas)
+      const lines = text.replace(/\\r/g,"").split("\\n").filter(Boolean);
+      if(!lines.length) return [];
+      const headers = splitCSVLine(lines[0]);
+      const rows = [];
+      for(let i=1;i<lines.length;i++){
+        const vals = splitCSVLine(lines[i]);
+        const obj = {};
+        headers.forEach((h,idx)=> obj[h] = vals[idx] ?? "");
+        rows.push(obj);
+      }
+      return rows;
+    }
+    function splitCSVLine(line){
+      const out=[], re=/(?:^|,)(\"(?:(?:\"\")*[^\"]*)*\"|[^,]*)/g; let m;
+      while((m=re.exec(line))!==null){
+        let v=m[1]; if(v && v[0]===",") v=v.slice(1);
+        if(v && v[0]==='"') v=v.slice(1,-1).replace(/""/g,'"');
+        out.push(v||"");
+      }
+      return out;
+    }
+
+    // Heurística mínima para detectar tipo (malla/oferta/estudiantes) por headers
+    function routeDatasetGuess(fname, rows){
+      const headers = Object.keys(rows[0]||{}).map(h=>h.toLowerCase());
+      const score = {
+        malla: ["carrera","ciclo","codigo","codigo_asignatura","nombre","nombre_asignatura"].filter(k=>headers.some(h=>h.includes(k))).length,
+        oferta: ["codigo","paralelo","docente"].filter(k=>headers.some(h=>h.includes(k))).length,
+        estudiantes: ["id","estudiante","carrera","ciclo","nivel"].filter(k=>headers.some(h=>h.includes(k))).length
+      };
+      const tipo = Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
+      state.datasets[tipo].push(...rows);
+      addStatus(`${fname}: cargado como ${tipo}`);
+    }
+
+    // ===== Planificación simplificada (mismo enfoque)
+    document.getElementById("btnPlanificar").addEventListener("click", ()=>{
       try{
-        const data = await file.arrayBuffer();
-        const wb = XLSX.read(data, {type:"array"});
-        // Suponga 1ra hoja relevante
-        const wsName = wb.SheetNames[0];
-        const ws = wb.Sheets[wsName];
-        const json = XLSX.utils.sheet_to_json(ws, {defval:""});
-        if(!json.length){ addStatus(`${file.name}: hoja vacía`, false); return; }
-        const headers = Object.keys(json[0]);
-        // Determine tipo probable: compare headers con requisitos
-        const score = {
-          malla: scoreHeaders(headers, REQ.malla),
-          oferta: scoreHeaders(headers, REQ.oferta),
-          estudiantes: scoreHeaders(headers, REQ.estudiantes),
-          ingles: scoreHeaders(headers, REQ.ingles),
-          practicas: scoreHeaders(headers, REQ.practicas)
-        };
-        const tipo = Object.entries(score).sort((a,b)=>b[1]-a[1])[0][0];
-        // If necesita mapeo, mostrar asistente
-        const reqList = REQ[tipo];
-        if(needsMapping(headers, reqList)){
-          // guardar en pending (un solo modal por vez)
-          state.mappingsPending = { tipo, fileName:file.name, headers, rows:json, map:guessMapping(headers, reqList) };
-          openMappingModal();
-          addStatus(`${file.name}: requiere mapeo`, false, `detectado como ${tipo}`);
-        }else{
-          // map auto
-          const map = guessMapping(headers, reqList);
-          const rows = applyMap(json, map, reqList);
-          state.datasets[tipo].push(...rows);
-          addStatus(`${file.name}: cargado como ${tipo}`, true);
-        }
-      }catch(err){
-        console.error(err);
-        addStatus(`${file.name}: error al procesar`, false);
-      }
-    }
-
-    function scoreHeaders(headers, reqList){
-      const n = headers.map(h=>norm(h));
-      let s = 0;
-      for(const r of reqList){
-        if(n.includes(r)) s+=2;
-        else if((SYN[r]||[]).some(syn=>n.includes(norm(syn)))) s+=1;
-      }
-      return s;
-    }
-
-    function applyMap(rows, map, reqList){
-      // convierte keys originales a requeridos según map; ignora otras columnas
-      return rows.map(r=>{
-        const o = {};
-        for(const req of reqList){
-          const src = map[req];
-          o[req] = src ? r[src] : "";
-        }
-        return o;
-      });
-    }
-
-    /*** =========================
-     *  Modal mapeo de columnas
-     *  ========================= */
-    const $modalMap = document.getElementById("modalMapeo");
-    const $mapContenido = document.getElementById("mapeoContenido");
-    const $btnAplicarMapeo = document.getElementById("btnAplicarMapeo");
-    const $btnCancelarMapeo = document.getElementById("btnCancelarMapeo");
-
-    function openMappingModal(){
-      const m = state.mappingsPending;
-      if(!m) return;
-      const reqList = REQ[m.tipo];
-      $mapContenido.innerHTML = `
-        <div class="help">Archivo: <b>${m.fileName}</b> &nbsp;|&nbsp; Detectado como: <b>${m.tipo}</b></div>
-        <div class="table-wrap" style="max-height:320px;margin-top:8px">
-        <table><thead><tr><th>Campo requerido</th><th>Columna en archivo</th></tr></thead><tbody>
-        ${reqList.map(req=>`
-          <tr>
-            <td><code class="code">${req}</code></td>
-            <td>
-              <select data-req="${req}">
-                <option value="">— seleccionar —</option>
-                ${m.headers.map(h=>`<option value="${h}" ${m.map[req]===h?"selected":""}>${h}</option>`).join("")}
-              </select>
-            </td>
-          </tr>
-        `).join("")}
-        </tbody></table></div>
-      `;
-      $modalMap.style.display = "flex";
-    }
-
-    $btnCancelarMapeo.addEventListener("click", ()=>{ $modalMap.style.display="none"; state.mappingsPending=null; });
-    $btnAplicarMapeo.addEventListener("click", ()=>{
-      const m = state.mappingsPending; if(!m) return;
-      const selects = $mapContenido.querySelectorAll("select[data-req]");
-      const map = {};
-      selects.forEach(s=>{ if(s.value) map[s.dataset.req]=s.value; });
-      const missing = REQ[m.tipo].filter(r=>!map[r]);
-      if(missing.length){
-        alertLive("Faltan campos: "+missing.join(", "));
-        return;
-      }
-      const rows = applyMap(m.rows, map, REQ[m.tipo]);
-      state.datasets[m.tipo].push(...rows);
-      addStatus(`${m.fileName}: mapeo aplicado como ${m.tipo}`, true);
-      $modalMap.style.display = "none"; state.mappingsPending=null;
-      postLoadRefresh();
+        planificar(); renderCareer(); renderStudent(); renderConflicts();
+        alertLive("Planificación completada.");
+      }catch(e){ console.error(e); alertLive("Error en planificación."); }
     });
 
-    function postLoadRefresh(){
-      // Fusionar con SAMPLE sólo si no hay cargas
-      if(!state.rawFiles.length){
-        state.datasets = deepClone(SAMPLE);
-      }
-      // Poblar carreras y ciclos
-      const carreras = unique(state.datasets.malla.map(x=>String(x.carrera||"").trim()).filter(Boolean)).sort();
+    function planificar(){
+      state.placements = []; state.studentAssign = []; state.conflictos = [];
+      // Tomar primeras carreras/ciclos detectados del dataset (para este fallback)
+      const carreras = unique(state.datasets.malla.map(x=>String(x.carrera||"").trim()).filter(Boolean));
       const ciclos = unique(state.datasets.malla.map(x=>String(x.ciclo||"").trim()).filter(Boolean)).sort((a,b)=>Number(a)-Number(b));
-      state.carreras = carreras; state.ciclos = ciclos;
-      renderCarrerasYCiclos();
-      // Mostrar conteos
-      addStatus(`Malla: ${state.datasets.malla.length} filas`, true);
-      addStatus(`Oferta: ${state.datasets.oferta.length} filas`, true);
-      addStatus(`Estudiantes: ${state.datasets.estudiantes.length} filas`, true);
-      if(state.datasets.ingles.length) addStatus(`Inglés: ${state.datasets.ingles.length} filas`, true);
-      if(state.datasets.practicas.length) addStatus(`Prácticas: ${state.datasets.practicas.length} filas`, true);
-    }
+      const carrSel = carreras; const cicSel = ciclos;
 
-    function renderCarrerasYCiclos(){
-      const $car = document.getElementById("selCarreras");
-      const $cic = document.getElementById("selCiclos");
-      $car.innerHTML = state.carreras.map(c=>`<option>${c}</option>`).join("");
-      $cic.innerHTML = state.ciclos.map(c=>`<option>${c}</option>`).join("");
-    }
-
-    /*** =========================
-     *  Prácticas e Inglés (modales)
-     *  ========================= */
-    const $modalPract = document.getElementById("modalPracticas");
-    const $pracContenido = document.getElementById("pracContenido");
-    const $btnEditarPracticas = document.getElementById("btnEditarPracticas");
-    const $btnCerrarPracticas = document.getElementById("btnCerrarPracticas");
-
-    $btnEditarPracticas.addEventListener("click", ()=>{
-      renderPracticasEditor();
-      $modalPract.style.display = "flex";
-    });
-    $btnCerrarPracticas.addEventListener("click", ()=>{ $modalPract.style.display = "none"; });
-
-    function renderPracticasEditor(){
-      const rows = state.datasets.practicas.length ? state.datasets.practicas : [];
-      const carreras = unique(state.datasets.malla.map(x=>x.carrera));
-      const ciclos = unique(state.datasets.malla.map(x=>x.ciclo)).sort((a,b)=>Number(a)-Number(b));
-      let html = `<div class="table-wrap"><table><thead><tr><th>Carrera</th><th>Ciclo</th><th>Franja bloqueada (p.ej. "Mié 13-16")</th><th>Acción</th></tr></thead><tbody id="tbPract">`;
-      rows.forEach((r,i)=>{
-        html += `<tr>
-          <td><input value="${r.carrera||""}" /></td>
-          <td><input value="${r.ciclo||""}" /></td>
-          <td><input value="${r.franja_bloqueada||""}" /></td>
-          <td><button class="btn error" data-del="${i}">Eliminar</button></td>
-        </tr>`;
-      });
-      html += `</tbody></table></div>
-        <div class="row" style="margin-top:8px">
-          <select id="newPracCarr">${carreras.map(c=>`<option>${c}</option>`)}</select>
-          <select id="newPracCiclo">${ciclos.map(c=>`<option>${c}</option>`)}</select>
-          <input id="newPracFranja" placeholder="Mié 13-16" />
-          <button id="btnAddPrac" class="btn success">Agregar</button>
-        </div>`;
-      $pracContenido.innerHTML = html;
-      $pracContenido.querySelectorAll("button[data-del]").forEach(btn=>{
-        btn.addEventListener("click", ()=>{
-          const idx = Number(btn.dataset.del);
-          state.datasets.practicas.splice(idx,1);
-          renderPracticasEditor();
-        });
-      });
-      $pracContenido.querySelector("#btnAddPrac").addEventListener("click", ()=>{
-        const c = $pracContenido.querySelector("#newPracCarr").value;
-        const k = $pracContenido.querySelector("#newPracCiclo").value;
-        const f = $pracContenido.querySelector("#newPracFranja").value;
-        if(c && k && f){
-          state.datasets.practicas.push({carrera:c,ciclo:k,franja_bloqueada:f});
-          renderPracticasEditor();
-        }
-      });
-    }
-
-    const $modalIngles = document.getElementById("modalIngles");
-    const $btnCargarIngles = document.getElementById("btnCargarIngles");
-    const $btnCerrarIngles = document.getElementById("btnCerrarIngles");
-    const $fileIngles = document.getElementById("fileIngles");
-    const $btnParseIngles = document.getElementById("btnParseIngles");
-    const $ingContenido = document.getElementById("inglesContenido");
-
-    $btnCargarIngles.addEventListener("click", ()=>{
-      renderInglesTable();
-      $modalIngles.style.display = "flex";
-    });
-    $btnCerrarIngles.addEventListener("click", ()=>{ $modalIngles.style.display = "none"; });
-
-    function renderInglesTable(){
-      const rows = state.datasets.ingles;
-      let html = `<table><thead><tr><th>id_estudiante</th><th>franja_bloqueada</th></tr></thead><tbody>`;
-      rows.forEach((r,i)=>{
-        html += `<tr>
-          <td><input value="${r.id_estudiante||""}" data-i="${i}" data-k="id_estudiante" /></td>
-          <td><input value="${r.franja_bloqueada||""}" data-i="${i}" data-k="franja_bloqueada" /></td>
-        </tr>`;
-      });
-      html += `</tbody></table>`;
-      $ingContenido.innerHTML = html;
-      $ingContenido.querySelectorAll("input[data-i]").forEach(inp=>{
-        inp.addEventListener("change",()=>{
-          const i = Number(inp.dataset.i), k = inp.dataset.k;
-          state.datasets.ingles[i][k] = inp.value;
-        });
-      });
-    }
-
-    $btnParseIngles.addEventListener("click", async ()=>{
-      const f = $fileIngles.files && $fileIngles.files[0];
-      if(!f){ alertLive("Seleccione un archivo de inglés."); return; }
-      try{
-        const data = await f.arrayBuffer();
-        const wb = XLSX.read(data,{type:"array"});
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(ws,{defval:""});
-        // mapear columnas a requeridas mínimas de inglés
-        const headers = Object.keys(json[0]||{});
-        const map = guessMapping(headers, REQ.ingles);
-        const rows = applyMap(json, map, REQ.ingles);
-        state.datasets.ingles.push(...rows.filter(r=>r.id_estudiante && (r.franja_bloqueada||r.ventanas_ingles)));
-        renderInglesTable();
-        addStatus(`${f.name}: inglés agregado`, true);
-      }catch(err){
-        console.error(err); alertLive("Error parseando inglés.");
-      }
-    });
-
-    /*** =========================
-     *  Planificación (core)
-     *  ========================= */
-    const $btnPlan = document.getElementById("btnPlanificar");
-    const $selCarreras = document.getElementById("selCarreras");
-    const $selCiclos = document.getElementById("selCiclos");
-    const $inputCiclosPri = document.getElementById("inputCiclosPrioritarios");
-    const $chkIngles = document.getElementById("chkUsarIngles");
-    const $chkPract = document.getElementById("chkUsarPracticas");
-
-    $btnPlan.addEventListener("click", ()=>{
-      const carreras = Array.from($selCarreras.selectedOptions).map(o=>o.value);
-      const ciclos = Array.from($selCiclos.selectedOptions).map(o=>o.value);
-      if(!carreras.length || !ciclos.length){
-        alertLive("Seleccione al menos una carrera y un ciclo.");
-        return;
-      }
-      state.usarIngles = $chkIngles.checked;
-      state.usarPracticas = $chkPract.checked;
-      state.ciclosPrioritarios = ($inputCiclosPri.value||"").split(",").map(s=>s.trim()).filter(Boolean);
-
-      planificar(carreras, ciclos);
-      renderResultados();
-    });
-
-    function planificar(carreras, ciclos){
-      // Reset resultados
-      state.placements = [];
-      state.studentAssign = [];
-      state.conflictos = [];
-
-      // Dataset filtrado por carrera/ciclo
-      const malla = state.datasets.malla.filter(m => carreras.includes(String(m.carrera)) && ciclos.includes(String(m.ciclo)));
-      const oferta = state.datasets.oferta.filter(o => malla.some(m=>m.codigo_asignatura===o.codigo_asignatura));
-      const estudiantes = state.datasets.estudiantes.filter(e => carreras.includes(String(e.carrera)) && ciclos.includes(String(e.ciclo_actual)));
-
-      // Índices
-      const mallaByCarrCiclo = {};
-      for(const m of malla){
-        const key = `${m.carrera}||${m.ciclo}`;
-        (mallaByCarrCiclo[key] ||= []).push(m);
-      }
+      const malla = state.datasets.malla.filter(m => carrSel.includes(String(m.carrera)) && cicSel.includes(String(m.ciclo)));
+      const oferta = state.datasets.oferta.filter(o => malla.some(m=>m.codigo_asignatura===o.codigo_asignatura || m.codigo_asignatura===o.codigo || (m.codigo && m.codigo===o.codigo)));
+      const estudiantes = state.datasets.estudiantes.filter(e => carrSel.includes(String(e.carrera)) && cicSel.includes(String(e.ciclo_actual||e.ciclo||"")));
       const ofertaByCodigo = {};
       for(const o of oferta){
-        (ofertaByCodigo[o.codigo_asignatura] ||= []).push(o);
-      }
-      const estudiantesByCarrCiclo = {};
-      for(const e of estudiantes){
-        const key = `${e.carrera}||${e.ciclo_actual}`;
-        (estudiantesByCarrCiclo[key] ||= []).push(e);
+        const code = o.codigo_asignatura || o.codigo;
+        (ofertaByCodigo[code] ||= []).push(o);
       }
 
-      // Prácticas por carrera/ciclo (franjas bloqueadas)
-      const practIndex = {};
-      if(state.usarPracticas){
-        for(const p of state.datasets.practicas){
-          const key = `${p.carrera}||${p.ciclo}`;
-          (practIndex[key] ||= []).push(p.franja_bloqueada);
+      // Variables a ubicar
+      const variables = [];
+      const byCarrCiclo = {};
+      for(const m of malla){
+        const k = `${m.carrera}||${m.ciclo}`; (byCarrCiclo[k] ||= []).push(m);
+      }
+      for(const k of Object.keys(byCarrCiclo)){
+        const [car,cic] = k.split("||");
+        const cods = unique(byCarrCiclo[k].map(x=>x.codigo_asignatura||x.codigo));
+        for(const code of cods){
+          const offs = ofertaByCodigo[code]||[];
+          if(!offs.length){ state.conflictos.push({tipo:"Falta oferta", desc:`Sin oferta para ${code}`}); continue; }
+          variables.push({carrera:car, ciclo:cic, codigo:code, paralelos:offs});
         }
       }
 
-      // Inglés por estudiante (franjas bloqueadas)
-      const inglesIndex = {};
-      if(state.usarIngles){
-        for(const i of state.datasets.ingles){
-          if(!i.id_estudiante) continue;
-          const list = [];
-          if(i.franja_bloqueada) list.push(i.franja_bloqueada);
-          if(i.ventanas_ingles){
-            // separar por ; o ,
-            i.ventanas_ingles.split(/[;,]+/).forEach(x=>list.push(x.trim()));
-          }
-          if(list.length) (inglesIndex[i.id_estudiante] ||= []).push(...list);
-        }
-      }
-
-      // Heurística: ordenar ciclos (prioritarios primero)
-      const orderCiclos = (arr)=>{
-        return arr.slice().sort((a,b)=>{
-          const ap = state.ciclosPrioritarios.includes(String(a)) ? 0 : 1;
-          const bp = state.ciclosPrioritarios.includes(String(b)) ? 0 : 1;
-          if(ap!==bp) return ap-bp;
-          return Number(a)-Number(b);
-        });
-      };
-
-      // Construir variables a ubicar: por carrera/ciclo, cada código de malla debe tener al menos un paralelo de oferta
-      const variables = []; // {carrera,ciclo,codigo,paralelos:[{paralelo,docente,cap}]}
-      for(const key of Object.keys(mallaByCarrCiclo)){
-        const [car,cic] = key.split("||");
-        const codigos = unique(mallaByCarrCiclo[key].map(x=>x.codigo_asignatura));
-        for(const code of codigos){
-          const offs = (ofertaByCodigo[code]||[]);
-          if(!offs.length){
-            state.conflictos.push({tipo:"Falta oferta", desc:`Sin oferta para ${code}`, est:"", doc:"", carr:`${car}/${cic}`, dia:"", franja:""});
-          }else{
-            variables.push({carrera:car, ciclo:cic, codigo:code, paralelos:offs});
-          }
-        }
-      }
-
-      // Orden heurístico de variables: primero las que tienen menos paralelos (más restrictivas), luego por disponibilidad de docentes/capacidad definida
-      variables.sort((a,b)=>{
-        const da = Math.min(...a.paralelos.map(p=>p.capacidad_maxima?0:1));
-        const db = Math.min(...b.paralelos.map(p=>p.capacidad_maxima?0:1));
-        if(a.paralelos.length !== b.paralelos.length) return a.paralelos.length - b.paralelos.length;
-        if(da !== db) return da - db;
-        return 0;
-      });
-
-      // Matrices ocupación: por carrera/ciclo y por docente (máx 2 por día)
-      const occCarrCiclo = {}; // key: carrera||ciclo -> { dia||franja : codigo }
-      const occDocenteDia = {}; // key: docente||dia -> count
-      const occDocenteSlot = {}; // key: docente||dia||franja -> true
-
-      // Además, evitar choques con ciclos adyacentes dentro de una carrera: marque ocupación por carrera y ciclo adyacente
-      const occCarrCicloSlot = {}; // key: carrera||ciclo||dia||franja -> true
-
-      function canPlace(varr, dia, franja, paralelo){
-        const keyCC = `${varr.carrera}||${varr.ciclo}`;
-        const keySlot = `${dia}||${franja}`;
-        // no choque dentro del mismo ciclo
+      // Ocupación de docente y ciclo adyacente
+      const occDocDia={}, occDocSlot={}, occCarrCiclo={}, occCarrCicloSlot={};
+      function canPlace(v, d, f, p){
+        const keyCC = `${v.carrera}||${v.ciclo}`; const keySlot = `${d}||${f}`;
         if((occCarrCiclo[keyCC]||{})[keySlot]) return false;
-        // no choque con ciclos adyacentes (N-1, N+1)
-        const c = Number(varr.ciclo);
-        const adj1 = `${varr.carrera}||${c-1}||${dia}||${franja}`;
-        const adj2 = `${varr.carrera}||${c+1}||${dia}||${franja}`;
+        const c = Number(v.ciclo); const adj1 = `${v.carrera}||${c-1}||${d}||${f}`; const adj2 = `${v.carrera}||${c+1}||${d}||${f}`;
         if(occCarrCicloSlot[adj1] || occCarrCicloSlot[adj2]) return false;
-        // docente: no duplicar slot y no superar 2 por día
-        const doc = (paralelo.docente||"").trim();
+        const doc = (p.docente||"").trim();
         if(doc){
-          if(occDocenteSlot[`${doc}||${dia}||${franja}`]) return false;
-          const cnt = occDocenteDia[`${doc}||${dia}`] || 0;
-          if(cnt >= MAX_POR_DIA) return false;
+          if(occDocSlot[`${doc}||${d}||${f}`]) return false;
+          if((occDocDia[`${doc}||${d}`]||0) >= MAX_POR_DIA) return false;
         }
-        // prácticas por carrera/ciclo
-        const pracKey = `${varr.carrera}||${varr.ciclo}`;
-        if(state.usarPracticas && (practIndex[pracKey]||[]).some(f=>matchFranja(f, dia, franja))) return false;
         return true;
       }
-
-      function place(varr, dia, franja, paralelo){
-        const keyCC = `${varr.carrera}||${varr.ciclo}`;
-        const keySlot = `${dia}||${franja}`;
-        (occCarrCiclo[keyCC] ||= {});
-        occCarrCiclo[keyCC][keySlot] = varr.codigo;
-        occCarrCicloSlot[`${varr.carrera}||${varr.ciclo}||${dia}||${franja}`] = true;
-        const doc = (paralelo.docente||"").trim();
-        if(doc){
-          occDocenteSlot[`${doc}||${dia}||${franja}`] = true;
-          occDocenteDia[`${doc}||${dia}`] = (occDocenteDia[`${doc}||${dia}`]||0)+1;
-        }
-        state.placements.push({carrera:varr.carrera,ciclo:varr.ciclo,codigo:varr.codigo,paralelo:paralelo.paralelo,docente:paralelo.docente||"",dia,franja});
+      function place(v,d,f,p){
+        const keyCC = `${v.carrera}||${v.ciclo}`; const keySlot = `${d}||${f}`;
+        (occCarrCiclo[keyCC] ||= {}); occCarrCiclo[keyCC][keySlot] = v.codigo;
+        occCarrCicloSlot[`${v.carrera}||${v.ciclo}||${d}||${f}`] = true;
+        const doc = (p.docente||"").trim();
+        if(doc){ occDocSlot[`${doc}||${d}||${f}`] = true; occDocDia[`${doc}||${d}`] = (occDocDia[`${doc}||${d}`]||0)+1; }
+        state.placements.push({carrera:v.carrera,ciclo:v.ciclo,codigo:v.codigo,paralelo:p.paralelo,docente:p.docente||"",dia:d,franja:f});
       }
-
-      function unplace(varr, dia, franja, paralelo){
-        const keyCC = `${varr.carrera}||${varr.ciclo}`;
-        const keySlot = `${dia}||${franja}`;
+      function unplace(v,d,f,p){
+        const keyCC = `${v.carrera}||${v.ciclo}`; const keySlot = `${d}||${f}`;
         if(occCarrCiclo[keyCC]) delete occCarrCiclo[keyCC][keySlot];
-        delete occCarrCicloSlot[`${varr.carrera}||${varr.ciclo}||${dia}||${franja}`];
-        const doc = (paralelo.docente||"").trim();
+        delete occCarrCicloSlot[`${v.carrera}||${v.ciclo}||${d}||${f}`];
+        const doc = (p.docente||"").trim();
         if(doc){
-          delete occDocenteSlot[`${doc}||${dia}||${franja}`];
-          const cnt = (occDocenteDia[`${doc}||${dia}`]||1)-1;
-          if(cnt<=0) delete occDocenteDia[`${doc}||${dia}`]; else occDocenteDia[`${doc}||${dia}`]=cnt;
+          delete occDocSlot[`${doc}||${d}||${f}`];
+          const cnt=(occDocDia[`${doc}||${d}`]||1)-1; if(cnt<=0) delete occDocDia[`${doc}||${d}`]; else occDocDia[`${doc}||${d}`]=cnt;
         }
-        // eliminar placement agregado
-        const i = state.placements.findIndex(p=>p.carrera===varr.carrera && p.ciclo===varr.ciclo && p.codigo===varr.codigo && p.paralelo===paralelo.paralelo && p.dia===dia && p.franja===franja);
+        const i = state.placements.findIndex(x=>x.carrera===v.carrera && x.ciclo===v.ciclo && x.codigo===v.codigo && x.paralelo===p.paralelo && x.dia===d && x.franja===f);
         if(i>=0) state.placements.splice(i,1);
       }
-
-      function matchFranja(text, dia, franja){
-        // text ej. "Mié 13-16" / admite abreviaturas
-        const t = (text||"").trim().toLowerCase();
-        const d = dia.toLowerCase();
-        const f = franja.toLowerCase();
-        return t.includes(d) && t.includes(f);
-      }
-
-      // Backtracking para ubicar paralelos (variables)
       function backtrack(i){
         if(i>=variables.length) return true;
-        const v = variables[i];
-
-        // enumerar candidatos (dia,franja,paralelo)
-        const cands = [];
-        for(const d of DIAS){
-          for(const f of FRANJAS){
-            for(const p of v.paralelos){
-              if(canPlace(v,d,f,p)){
-                cands.push({d,f,p});
-              }
-            }
-          }
-        }
-        // heurística adicional: prefiera franja con menor carga docente actual
-        cands.sort((a,b)=>{
-          const ad = (a.p.docente||"").trim();
-          const bd = (b.p.docente||"").trim();
-          const ca = ad ? (occDocenteDia[`${ad}||${a.d}`]||0) : 0;
-          const cb = bd ? (occDocenteDia[`${bd}||${b.d}`]||0) : 0;
-          if(ca!==cb) return ca-cb;
-          return 0;
-        });
-
-        for(const c of cands){
-          place(v,c.d,c.f,c.p);
-          if(backtrack(i+1)) return true;
-          unplace(v,c.d,c.f,c.p);
-        }
-        // si no se pudo ubicar
-        state.conflictos.push({tipo:"Sin ubicación", desc:`No se pudo ubicar ${v.codigo} (${v.carrera}/${v.ciclo})`, est:"", doc:"", carr:`${v.carrera}/${v.ciclo}`, dia:"", franja:""});
+        const v=variables[i]; const cands=[];
+        for(const d of DIAS){ for(const f of FRANJAS){ for(const p of v.paralelos){ if(canPlace(v,d,f,p)) cands.push({d,f,p}); }}}
+        for(const c of cands){ place(v,c.d,c.f,c.p); if(backtrack(i+1)) return true; unplace(v,c.d,c.f,c.p); }
+        state.conflictos.push({tipo:"Sin ubicación", desc:`No se pudo ubicar ${v.codigo} (${v.carrera}/${v.ciclo})`});
         return false;
       }
-
       backtrack(0);
 
-      // Asignación de estudiantes a paralelos ubicados (máx 2 por día, máx 6 total, inglés/prácticas)
-      const placementsIndex = {}; // codigo -> array de placements
-      for(const p of state.placements){
-        (placementsIndex[p.codigo] ||= []).push(p);
-      }
-
-      // capacidad por paralelo
-      const capIndex = {};
-      for(const o of oferta){
-        const key = `${o.codigo_asignatura}||${o.paralelo}`;
-        capIndex[key] = Number(o.capacidad_maxima || 9999);
-      }
-
-      // estudiantes por (carrera,ciclo) ordenados por restricciones (más bloqueos primero si aplica)
-      const keysCC = Object.keys(estudiantesByCarrCiclo).sort((a,b)=>{
-        const [ca,ka] = a.split("||"); const [cb,kb] = b.split("||");
-        const ao = orderCiclos([ka])[0]; const bo = orderCiclos([kb])[0];
-        if(ao!==bo) return Number(ao)-Number(bo);
-        return ca.localeCompare(cb);
-      });
-
-      for(const key of keysCC){
-        const [car,cic] = key.split("||");
-        const ests = estudiantesByCarrCiclo[key].slice().sort((a,b)=>{
-          const ra = (inglesIndex[a.id_estudiante]?.length||0);
-          const rb = (inglesIndex[b.id_estudiante]?.length||0);
-          return rb-ra; // más restricciones primero
-        });
-
-        // materias del ciclo actual
-        const materias = unique((mallaByCarrCiclo[key]||[]).map(x=>x.codigo_asignatura));
-
-        for(const e of ests){
-          const asignadas = [];
-          const dayCount = {}; // día -> count
-          function canAssign(pl){
-            // límites por día y total
-            const dc = (dayCount[pl.dia]||0);
-            if(dc>=MAX_POR_DIA) return false;
-            if(asignadas.length>=MAX_POR_ESTUDIANTE) return false;
-            // choques con ya asignadas
-            if(asignadas.some(a=>a.dia===pl.dia && a.franja===pl.franja)) return false;
-            // inglés
-            if(state.usarIngles && (inglesIndex[e.id_estudiante]||[]).some(f=>matchFranja(f, pl.dia, pl.franja))) return false;
-            // prácticas
-            if(state.usarPracticas){
-              const pracKey = `${car}||${cic}`;
-              if((practIndex[pracKey]||[]).some(f=>matchFranja(f, pl.dia, pl.franja))) return false;
-            }
-            // capacidad
-            const ckey = `${pl.codigo}||${pl.paralelo}`;
-            if(capIndex[ckey] !== undefined){
-              const used = state.studentAssign.filter(x=>x.codigo===pl.codigo && x.paralelo===pl.paralelo).length;
-              if(used >= capIndex[ckey]) return false;
-            }
-            return true;
-          }
-
-          for(const cod of materias){
-            // asignar a alguna ubicación disponible
-            const pls = (placementsIndex[cod]||[]).slice();
-            // ordenar por menor carga diaria del docente ya asignado a este estudiante (preferencia neutral)
-            for(const pl of pls){
-              if(canAssign(pl)){
-                asignadas.push({codigo:cod, paralelo:pl.paralelo, dia:pl.dia, franja:pl.franja, docente:pl.docente, carrera:car, ciclo:cic});
-                dayCount[pl.dia] = (dayCount[pl.dia]||0)+1;
-                state.studentAssign.push({id_estudiante:e.id_estudiante, nombre_estudiante:e.nombre_estudiante, codigo:cod, paralelo:pl.paralelo, dia:pl.dia, franja:pl.franja, docente:pl.docente, carrera:car, ciclo:cic});
-                break;
-              }
-            }
-          }
-          // advertencia si supera 6 (no ocurrirá) o si no se pudo asignar alguna materia
-          const noAsig = materias.filter(cod => !asignadas.some(a=>a.codigo===cod));
-          if(noAsig.length){
-            state.conflictos.push({tipo:"Asignación incompleta", desc:`${e.nombre_estudiante} no obtuvo: ${noAsig.join(", ")}`, est:e.nombre_estudiante, doc:"", carr:`${car}/${cic}`, dia:"", franja:""});
-          }
+      // Asignación estudiante
+      const placementsIndex = {}; for(const p of state.placements){ (placementsIndex[p.codigo] ||= []).push(p); }
+      for(const e of estudiantes){
+        const car = e.carrera; const cic = String(e.ciclo_actual||e.ciclo||"");
+        const materias = unique(malla.filter(m=>String(m.carrera)===car && String(m.ciclo)===cic).map(x=>x.codigo_asignatura||x.codigo));
+        const dayCount={}; const asignadas=[];
+        function canAssign(pl){
+          if((dayCount[pl.dia]||0) >= MAX_POR_DIA) return false;
+          if(asignadas.length >= MAX_POR_ESTUDIANTE) return false;
+          if(asignadas.some(a=>a.dia===pl.dia && a.franja===pl.franja)) return false;
+          return true;
         }
-      }
-
-      // Verificaciones finales globales (docente y estudiante máximos por día)
-      // Docentes: ya controlado al ubicar. Estudiantes: verificar en schedule final
-      const groupBy = (arr, keyFn)=> arr.reduce((acc,x)=>{ const k = keyFn(x); (acc[k] ||= []).push(x); return acc; },{});
-      const byEst = groupBy(state.studentAssign, x=>x.id_estudiante+"||"+x.dia);
-      for(const k of Object.keys(byEst)){
-        if(byEst[k].length > MAX_POR_DIA){
-          const [est,dia] = k.split("||");
-          state.conflictos.push({tipo:"Límite diario", desc:`Estudiante ${est} supera 2 materias en ${dia}`, est:est, doc:"", carr:"", dia:dia, franja:""});
+        for(const cod of materias){
+          const pls = (placementsIndex[cod]||[]);
+          for(const pl of pls){ if(canAssign(pl)){ asignadas.push({codigo:cod,paralelo:pl.paralelo,dia:pl.dia,franja:pl.franja,docente:pl.docente,carrera:car,ciclo:cic});
+            dayCount[pl.dia]=(dayCount[pl.dia]||0)+1;
+            state.studentAssign.push({id_estudiante:e.id_estudiante||e.id, nombre_estudiante:e.nombre_estudiante||e.estudiante||"", codigo:cod, paralelo:pl.paralelo, dia:pl.dia, franja:pl.franja, docente:pl.docente, carrera:car, ciclo:cic});
+            break; }
+          }
         }
       }
     }
 
-    /*** =========================
-     *  Render resultados
-     *  ========================= */
-    function renderResultados(){
-      renderCareerView();
-      renderStudentView();
-      renderConflicts();
-      populateStudentSelect();
-      alertLive("Planificación completada.");
-    }
-
-    function renderCareerView(){
-      const cont = document.getElementById("careerContainer");
-      cont.innerHTML = "";
-      // agrupar por carrera/ciclo
-      const byKey = {};
-      for(const p of state.placements){
-        const k = `${p.carrera}||${p.ciclo}`;
-        (byKey[k] ||= []).push(p);
-      }
+    // ===== Renderizaciones mínimas
+    function renderCareer(){
+      const cont = document.getElementById("viewCareer"); cont.innerHTML="";
+      const byKey={}; for(const p of state.placements){ const k=`${p.carrera}||${p.ciclo}`; (byKey[k] ||= []).push(p); }
       const keys = Object.keys(byKey).sort();
-      if(!keys.length){
-        cont.innerHTML = `<div class="sticky-note">Sin ubicaciones. Verifique que exista oferta para las asignaturas seleccionadas.</div>`;
-        return;
-      }
-      keys.forEach(k=>{
-        const [car,cic] = k.split("||");
-        const title = document.createElement("h3");
-        title.textContent = `${car} / Ciclo ${cic}`;
-        cont.appendChild(title);
-
-        const grid = document.createElement("div");
-        grid.className = "grid-week";
-        // columna de encabezado
+      if(!keys.length){ cont.innerHTML = `<p class="help">Sin ubicaciones.</p>`; return; }
+      for(const k of keys){
+        const [car,cic]=k.split("||");
+        cont.insertAdjacentHTML("beforeend", `<h3>${escapeHtml(car)} / Ciclo ${escapeHtml(cic)}</h3>`);
+        const grid = document.createElement("div"); grid.className="grid-week";
         const colHdr = document.createElement("div"); colHdr.className="col";
-        colHdr.appendChild(cellHeader("Franja/Día"));
-        FRANJAS.forEach(f=>{
-          colHdr.appendChild(cellHeader(f));
-        });
+        colHdr.appendChild(cellHeader("Franja/Día")); FRANJAS.forEach(f=>colHdr.appendChild(cellHeader(f)));
         grid.appendChild(colHdr);
-
-        // por cada día
         for(const d of DIAS){
-          const col = document.createElement("div"); col.className="col";
+          const col=document.createElement("div"); col.className="col";
           col.appendChild(cellHeader(d));
           for(const f of FRANJAS){
-            const cell = document.createElement("div"); cell.className="cell";
-            const items = byKey[k].filter(p=>p.dia===d && p.franja===f);
-            if(!items.length){
-              cell.innerHTML = `<span class="help">—</span>`;
-            }else{
-              cell.innerHTML = items.map(it=>`<div><b>${escapeHtml(it.codigo)}</b> – ${escapeHtml(getNombreAsignatura(it.codigo))} &nbsp; <span class="badge">Par ${escapeHtml(it.paralelo)}</span><br><span class="help">${escapeHtml(it.docente||"")}</span></div>`).join("");
-            }
+            const cell=document.createElement("div"); cell.className="cell";
+            const items=byKey[k].filter(p=>p.dia===d && p.franja===f);
+            cell.innerHTML = items.length ? items.map(it=>`<div><b>${escapeHtml(it.codigo)}</b> — Par ${escapeHtml(it.paralelo)}<br><span class="help">${escapeHtml(it.docente||"")}</span></div>`).join("") : `<span class="help">—</span>`;
             col.appendChild(cell);
           }
           grid.appendChild(col);
         }
         cont.appendChild(grid);
-        cont.appendChild(document.createElement("div")).className="sep";
-      });
+      }
+      function cellHeader(t){ const div=document.createElement("div"); div.className="cell"; div.style.background="#0b1a33"; div.style.fontWeight="600"; div.textContent=t; return div; }
     }
 
-    function getNombreAsignatura(codigo){
-      const row = state.datasets.malla.find(m=>m.codigo_asignatura===codigo);
-      return row ? row.nombre_asignatura : "";
-    }
-
-    function cellHeader(text){
-      const div = document.createElement("div");
-      div.className = "cell";
-      div.style.background="#0b1a33";
-      div.style.fontWeight="600";
-      div.textContent = text;
-      return div;
-    }
-
-    function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;" }[m])); }
-
-    /*** =========================
-     *  Vista por Estudiante (edición)
-     *  ========================= */
-    function populateStudentSelect(){
-      const ests = unique(state.studentAssign.map(a=>a.id_estudiante))
-        .map(id => {
-          const any = state.studentAssign.find(x=>x.id_estudiante===id);
-          return { id, nombre: any?.nombre_estudiante || id };
-        }).sort(byKey("nombre"));
-      const $sel = document.getElementById("selEstudiante");
-      $sel.innerHTML = ests.map(e=>`<option value="${e.id}">${escapeHtml(e.nombre)} (${escapeHtml(e.id)})</option>`).join("");
-      $sel.addEventListener("change", renderStudentView);
-      if(ests.length && !$sel.value){ $sel.value = ests[0].id; }
-      renderStudentView();
-    }
-
-    function renderStudentView(){
-      const $sel = document.getElementById("selEstudiante");
-      const target = document.getElementById("studentSchedule");
-      target.innerHTML = "";
-      const id = $sel.value;
-      if(!id){ target.innerHTML = `<div class="sticky-note">Seleccione un estudiante.</div>`; return; }
-      const rows = state.studentAssign.filter(a=>a.id_estudiante===id);
-      // matriz por día/franja
-      const grid = document.createElement("div");
-      grid.className = "grid-week";
-      const colHdr = document.createElement("div"); colHdr.className="col";
-      colHdr.appendChild(cellHeader("Franja/Día"));
-      FRANJAS.forEach(f=>{ colHdr.appendChild(cellHeader(f)); });
+    function renderStudent(){
+      populateStudentSelect();
+      const id = document.getElementById("selEstudiante").value;
+      const target = document.getElementById("studentSchedule"); target.innerHTML="";
+      if(!id) return;
+      const rows = state.studentAssign.filter(a=> (a.id_estudiante||a.id)===id);
+      const grid=document.createElement("div"); grid.className="grid-week";
+      const colHdr=document.createElement("div"); colHdr.className="col";
+      colHdr.appendChild(cellHeader("Franja/Día")); FRANJAS.forEach(f=>colHdr.appendChild(cellHeader(f)));
       grid.appendChild(colHdr);
       for(const d of DIAS){
-        const col = document.createElement("div"); col.className="col";
+        const col=document.createElement("div"); col.className="col";
         col.appendChild(cellHeader(d));
         for(const f of FRANJAS){
-          const cell = document.createElement("div"); cell.className="cell";
-          const items = rows.filter(p=>p.dia===d && p.franja===f);
-          if(!items.length){
-            cell.innerHTML = `<span class="help">—</span>`;
-          }else{
-            cell.innerHTML = items.map(it=>`<div><b>${escapeHtml(it.codigo)}</b> – ${escapeHtml(getNombreAsignatura(it.codigo))} <span class="badge">Par ${escapeHtml(it.paralelo)}</span><br><span class="help">${escapeHtml(it.docente||"")}</span></div>`).join("");
-          }
+          const cell=document.createElement("div"); cell.className="cell";
+          const items=rows.filter(p=>p.dia===d && p.franja===f);
+          cell.innerHTML = items.length ? items.map(it=>`<div><b>${escapeHtml(it.codigo)}</b> — Par ${escapeHtml(it.paralelo)}<br><span class="help">${escapeHtml(it.docente||"")}</span></div>`).join("") : `<span class="help">—</span>`;
           col.appendChild(cell);
         }
         grid.appendChild(col);
       }
       target.appendChild(grid);
+      function cellHeader(t){ const div=document.createElement("div"); div.className="cell"; div.style.background="#0b1a33"; div.style.fontWeight="600"; div.textContent=t; return div; }
     }
-
-    // Edición: mover / reemplazar
-    document.getElementById("btnMoverAsignatura").addEventListener("click", ()=>{
-      const id = document.getElementById("selEstudiante").value;
-      if(!id) return;
-      const cod = prompt("Código de asignatura a mover (p.ej. MAT101):");
-      if(!cod) return;
-      const dia = prompt("Nuevo día (Lun,Mar,Mié,Jue,Vie):");
-      const fr = prompt("Nueva franja (7-10,10-13,13-16,16-19,19-22):");
-      if(!DIAS.includes(dia) || !FRANJAS.includes(fr)){ alertLive("Día/franja inválidos."); return; }
-      const ok = moverAsignatura(id, cod, dia, fr);
-      alertLive(ok ? "Movimiento aplicado." : "Movimiento no permitido por reglas.");
-      renderStudentView();
-    });
-
-    document.getElementById("btnReemplazarAsignatura").addEventListener("click", ()=>{
-      const id = document.getElementById("selEstudiante").value;
-      if(!id) return;
-      const cod = prompt("Código de asignatura a reemplazar (p.ej. MAT101):");
-      if(!cod) return;
-      const par = prompt("Nuevo paralelo (ej.: A, B, C):");
-      if(!par) return;
-      const ok = reemplazarParalelo(id, cod, par);
-      alertLive(ok ? "Reemplazo aplicado." : "Reemplazo no permitido/capacidad superada.");
-      renderStudentView();
-    });
-
-    function moverAsignatura(id, codigo, nuevoDia, nuevaFranja){
-      const asigs = state.studentAssign.filter(x=>x.id_estudiante===id && x.codigo===codigo);
-      if(!asigs.length) return false;
-      const a = asigs[0];
-      // validar contra límites y bloqueos
-      if(!puedeColocarEstudiante(id, {dia:nuevoDia, franja:nuevaFranja}, codigo, a.paralelo, a.carrera, a.ciclo)) return false;
-      a.dia = nuevoDia; a.franja = nuevaFranja;
-      return true;
+    function populateStudentSelect(){
+      const ests = unique(state.studentAssign.map(a=>a.id_estudiante||a.id))
+        .map(id=>{
+          const any=state.studentAssign.find(x=>(x.id_estudiante||x.id)===id);
+          return {id, nombre: any?.nombre_estudiante || id};
+        }).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+      const sel=document.getElementById("selEstudiante");
+      sel.innerHTML=ests.map(e=>`<option value="${e.id}">${escapeHtml(e.nombre)} (${escapeHtml(e.id)})</option>`).join("");
+      sel.onchange = renderStudent;
+      if(ests.length && !sel.value){ sel.value=ests[0].id; }
     }
-
-    function reemplazarParalelo(id, codigo, nuevoPar){
-      const a = state.studentAssign.find(x=>x.id_estudiante===id && x.codigo===codigo);
-      if(!a) return false;
-      // debe existir placement para ese paralelo
-      const pl = state.placements.find(p=>p.codigo===codigo && p.paralelo===nuevoPar);
-      if(!pl) return false;
-      // validar capacidad
-      const ckey = `${pl.codigo}||${pl.paralelo}`;
-      const cap = state.datasets.oferta.find(o=>o.codigo_asignatura===pl.codigo && o.paralelo===pl.paralelo)?.capacidad_maxima || 9999;
-      const used = state.studentAssign.filter(x=>x.codigo===pl.codigo && x.paralelo===pl.paralelo).length;
-      if(used >= Number(cap)) return false;
-      // validar límites y bloqueos
-      if(!puedeColocarEstudiante(id, {dia:pl.dia, franja:pl.franja}, codigo, nuevoPar, a.carrera, a.ciclo)) return false;
-      a.paralelo = nuevoPar; a.dia = pl.dia; a.franja = pl.franja; a.docente = pl.docente;
-      return true;
-    }
-
-    function puedeColocarEstudiante(id, slot, codigo, paralelo, carrera, ciclo){
-      // límites por día
-      const dayCount = state.studentAssign.filter(x=>x.id_estudiante===id && x.dia===slot.dia && !(x.codigo===codigo && x.paralelo===paralelo)).length;
-      if(dayCount >= MAX_POR_DIA) return false;
-      // total
-      const total = state.studentAssign.filter(x=>x.id_estudiante===id && !(x.codigo===codigo && x.paralelo===paralelo)).length;
-      if(total >= MAX_POR_ESTUDIANTE) return false;
-      // choque horario
-      const choque = state.studentAssign.some(x=>x.id_estudiante===id && x.dia===slot.dia && x.franja===slot.franja && !(x.codigo===codigo && x.paralelo===paralelo));
-      if(choque) return false;
-      // inglés
-      if(state.usarIngles){
-        const ii = state.datasets.ingles.filter(i=>i.id_estudiante===id).map(i=>i.franja_bloqueada).filter(Boolean);
-        if(ii.some(f=>matchFranja(f, slot.dia, slot.franja))) return false;
-      }
-      // prácticas
-      if(state.usarPracticas){
-        const pracKey = `${carrera}||${ciclo}`;
-        const pp = state.datasets.practicas.filter(p=>`${p.carrera}||${p.ciclo}`===pracKey).map(p=>p.franja_bloqueada);
-        if(pp.some(f=>matchFranja(f, slot.dia, slot.franja))) return false;
-      }
-      return true;
-    }
-
-    /*** =========================
-     *  Conflictos
-     *  ========================= */
     function renderConflicts(){
-      const tbody = document.querySelector("#tablaConflictos tbody");
-      tbody.innerHTML = "";
-      const filtros = {
-        est: document.getElementById("filtroEst").value?.toLowerCase()||"",
-        doc: document.getElementById("filtroDoc").value?.toLowerCase()||"",
-        car: document.getElementById("filtroCar").value?.toLowerCase()||"",
-        dia: document.getElementById("filtroDia").value||"",
-        fr: document.getElementById("filtroFranja").value||""
-      };
-      const rows = state.conflictos.filter(c=>{
-        return (!filtros.est || (c.est||"").toLowerCase().includes(filtros.est))
-            && (!filtros.doc || (c.doc||"").toLowerCase().includes(filtros.doc))
-            && (!filtros.car || (c.carr||"").toLowerCase().includes(filtros.car))
-            && (!filtros.dia || (c.dia||"")===filtros.dia)
-            && (!filtros.fr  || (c.franja||"")===filtros.fr);
-      });
-      for(const c of rows){
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${escapeHtml(c.tipo)}</td><td>${escapeHtml(c.desc)}</td><td>${escapeHtml(c.est||"")}</td><td>${escapeHtml(c.doc||"")}</td><td>${escapeHtml(c.carr||"")}</td><td>${escapeHtml(c.dia||"")}</td><td>${escapeHtml(c.franja||"")}</td>`;
-        tbody.appendChild(tr);
+      const body=document.getElementById("confBody"); body.innerHTML="";
+      for(const c of state.conflictos){
+        body.insertAdjacentHTML("beforeend", `<tr><td>${escapeHtml(c.tipo)}</td><td>${escapeHtml(c.desc)}</td></tr>`);
       }
     }
-    ["filtroEst","filtroDoc","filtroCar","filtroDia","filtroFranja"].forEach(id=>{
-      document.getElementById(id).addEventListener("input", renderConflicts);
-      document.getElementById(id).addEventListener("change", renderConflicts);
-    });
 
-    /*** =========================
-     *  Tabs
-     *  ========================= */
-    function switchTab(target){
-      document.querySelectorAll(".tabs button").forEach(b=>{
-        const active = (b.id === target);
-        b.classList.toggle("active", active);
-        b.setAttribute("aria-selected", active ? "true" : "false");
-      });
-      const map = { tabCareer:"viewCareer", tabStudent:"viewStudent", tabConflicts:"viewConflicts", tabHelp:"viewInstrucciones" };
-      const id = map[target];
-      document.querySelectorAll(".vis").forEach(v=>v.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-    }
-    document.getElementById("tabCareer").addEventListener("click", ()=>switchTab("tabCareer"));
-    document.getElementById("tabStudent").addEventListener("click", ()=>switchTab("tabStudent"));
-    document.getElementById("tabConflicts").addEventListener("click", ()=>switchTab("tabConflicts"));
-    document.getElementById("tabHelp").addEventListener("click", ()=>switchTab("tabHelp"));
+    // Edición básica (con validaciones mínimas)
+    document.getElementById("btnMoverAsignatura").onclick = ()=>{
+      const id = document.getElementById("selEstudiante").value; if(!id) return;
+      const cod = prompt("Código a mover:"); if(!cod) return;
+      const dia = prompt("Nuevo día (Lun,Mar,Mié,Jue,Vie):"); const fr = prompt("Nueva franja (7-10,10-13,13-16,16-19,19-22):");
+      if(!DIAS.includes(dia) || !FRANJAS.includes(fr)){ alertLive("Día/franja inválidos"); return; }
+      const a = state.studentAssign.find(x=>(x.id_estudiante||x.id)===id && (x.codigo===cod));
+      if(!a){ alertLive("No encontrado."); return; }
+      const dayCount = state.studentAssign.filter(x=>(x.id_estudiante||x.id)===id && x.dia===dia && !(x.codigo===cod)).length;
+      if(dayCount>=MAX_POR_DIA){ alertLive("Límite diario (2) superado."); return; }
+      const choque = state.studentAssign.some(x=>(x.id_estudiante||x.id)===id && x.dia===dia && x.franja===fr && !(x.codigo===cod));
+      if(choque){ alertLive("Cruce horario."); return; }
+      a.dia=dia; a.franja=fr; renderStudent(); alertLive("Movimiento aplicado.");
+    };
+    document.getElementById("btnReemplazarAsignatura").onclick = ()=>{
+      const id = document.getElementById("selEstudiante").value; if(!id) return;
+      const cod = prompt("Código a reemplazar:"); if(!cod) return;
+      const par = prompt("Nuevo paralelo:"); if(!par) return;
+      const a = state.studentAssign.find(x=>(x.id_estudiante||x.id)===id && x.codigo===cod);
+      const pl = state.placements.find(p=>p.codigo===cod && p.paralelo===par);
+      if(!a || !pl){ alertLive("Paralelo no disponible."); return; }
+      const choque = state.studentAssign.some(x=>(x.id_estudiante||x.id)===id && x.dia===pl.dia && x.franja===pl.franja && !(x.codigo===cod));
+      if(choque){ alertLive("Cruce horario."); return; }
+      a.paralelo=par; a.dia=pl.dia; a.franja=pl.franja; a.docente=pl.docente; renderStudent(); alertLive("Reemplazo aplicado.");
+    };
 
-    /*** =========================
-     *  Guardar / Recuperar
-     *  ========================= */
-    const $btnSave = document.getElementById("btnSave");
-    const $btnLoad = document.getElementById("btnLoad");
-    $btnSave.addEventListener("click", ()=>{
-      const key = "planificador_v1";
-      const payload = {
-        datasets: state.datasets,
-        placements: state.placements,
-        studentAssign: state.studentAssign,
-        conflictos: state.conflictos,
-        config:{
-          carrerasSelected: Array.from($selCarreras.selectedOptions).map(o=>o.value),
-          ciclosSelected: Array.from($selCiclos.selectedOptions).map(o=>o.value),
-          ciclosPrioritarios: state.ciclosPrioritarios,
-          usarIngles: state.usarIngles,
-          usarPracticas: state.usarPracticas
-        }
-      };
-      localStorage.setItem(key, JSON.stringify(payload));
+    // ===== Guardar / Cargar / Exportar
+    document.getElementById("btnSave").onclick = ()=>{
+      localStorage.setItem("planificador_fallback_v1", JSON.stringify(state));
       alertLive("Guardado en este navegador.");
-    });
-    $btnLoad.addEventListener("click", ()=>{
-      const key = "planificador_v1";
-      const raw = localStorage.getItem(key);
+    };
+    document.getElementById("btnLoad").onclick = ()=>{
+      const raw = localStorage.getItem("planificador_fallback_v1");
       if(!raw){ alertLive("No hay datos guardados."); return; }
-      try{
-        const payload = JSON.parse(raw);
-        state.datasets = payload.datasets || state.datasets;
-        state.placements = payload.placements || [];
-        state.studentAssign = payload.studentAssign || [];
-        state.conflictos = payload.conflictos || [];
-        state.usarIngles = payload.config?.usarIngles || false;
-        state.usarPracticas = payload.config?.usarPracticas || false;
-        state.ciclosPrioritarios = payload.config?.ciclosPrioritarios || [];
-        // refrescar selects
-        const carreras = unique(state.datasets.malla.map(x=>String(x.carrera||"").trim()).filter(Boolean)).sort();
-        const ciclos = unique(state.datasets.malla.map(x=>String(x.ciclo||"").trim()).filter(Boolean)).sort((a,b)=>Number(a)-Number(b));
-        state.carreras = carreras; state.ciclos = ciclos;
-        renderCarrerasYCiclos();
-        // re-seleccionar
-        const $car = document.getElementById("selCarreras");
-        const $cic = document.getElementById("selCiclos");
-        (payload.config?.carrerasSelected||[]).forEach(v=>{
-          const opt = Array.from($car.options).find(o=>o.value===v); if(opt) opt.selected = true;
-        });
-        (payload.config?.ciclosSelected||[]).forEach(v=>{
-          const opt = Array.from($cic.options).find(o=>o.value===v); if(opt) opt.selected = true;
-        });
-        document.getElementById("inputCiclosPrioritarios").value = (state.ciclosPrioritarios||[]).join(",");
-        document.getElementById("chkUsarIngles").checked = state.usarIngles;
-        document.getElementById("chkUsarPracticas").checked = state.usarPracticas;
-
-        renderResultados();
-        alertLive("Datos recuperados.");
-      }catch(err){
-        console.error(err); alertLive("Error al recuperar datos.");
-      }
-    });
-
-    /*** =========================
-     *  Exportar CSV
-     *  ========================= */
-    document.getElementById("btnExportCareer").addEventListener("click", ()=>{
-      // Una fila por placement (carrera/ciclo/día/franja + datos)
-      const rows = state.placements.map(p=>({
-        carrera:p.carrera, ciclo:p.ciclo, dia:p.dia, franja:p.franja,
-        codigo:p.codigo, nombre:getNombreAsignatura(p.codigo), paralelo:p.paralelo, docente:p.docente
-      }));
+      try{ const s=JSON.parse(raw); Object.assign(state, s); renderCareer(); renderStudent(); renderConflicts(); alertLive("Recuperado."); }catch{ alertLive("Error al recuperar."); }
+    };
+    document.getElementById("btnExportCareer").onclick = ()=>{
+      const rows = state.placements.map(p=>({carrera:p.carrera,ciclo:p.ciclo,dia:p.dia,franja:p.franja,codigo:p.codigo,paralelo:p.paralelo,docente:p.docente}));
       download("horario_carreras_ciclos.csv", toCSV(rows));
-    });
-    document.getElementById("btnExportStudent").addEventListener("click", ()=>{
-      const rows = state.studentAssign.map(a=>({
-        id_estudiante:a.id_estudiante, nombre_estudiante:a.nombre_estudiante,
-        carrera:a.carrera, ciclo:a.ciclo,
-        codigo:a.codigo, nombre:getNombreAsignatura(a.codigo), paralelo:a.paralelo,
-        dia:a.dia, franja:a.franja, docente:a.docente
-      }));
+    };
+    document.getElementById("btnExportStudent").onclick = ()=>{
+      const rows = state.studentAssign.map(a=>({id_estudiante:a.id_estudiante||a.id,nombre_estudiante:a.nombre_estudiante||"",carrera:a.carrera,ciclo:a.ciclo,codigo:a.codigo,paralelo:a.paralelo,dia:a.dia,franja:a.franja,docente:a.docente}));
       download("horario_estudiantes.csv", toCSV(rows));
-    });
+    };
+    function toCSV(rows){
+      if(!rows.length) return "";
+      const cols = Object.keys(rows[0]); const esc=s=>/[\",\\n]/.test(String(s)) ? '"'+String(s).replace(/\"/g,'""')+'"' : String(s);
+      return [cols.join(",")].concat(rows.map(r=>cols.map(c=>esc(r[c]??"")).join(","))).join("\\n");
+    }
+    function download(filename, text){
+      const blob = new Blob([text], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download=filename; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 500);
+    }
 
-    /*** =========================
-     *  Inicialización
-     *  ========================= */
-    // Precarga muestra si no se cargan archivos
-    postLoadRefresh();
-
-    // Toggle checkboxes
-    document.getElementById("chkUsarIngles").addEventListener("change", (e)=>{
-      state.usarIngles = e.target.checked;
-    });
-    document.getElementById("chkUsarPracticas").addEventListener("change", (e)=>{
-      state.usarPracticas = e.target.checked;
+    // ===== Tabs
+    const tabs = {tabCareer:"viewCareer", tabStudent:"viewStudent", tabConflicts:"viewConflicts", tabHelp:"viewHelp"};
+    Object.keys(tabs).forEach(tid=>{
+      document.getElementById(tid).onclick = ()=>{
+        document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active", b.id===tid));
+        document.querySelectorAll(".vis").forEach(v=>v.classList.remove("active"));
+        document.getElementById(tabs[tid]).classList.add("active");
+      };
     });
 
   })();
